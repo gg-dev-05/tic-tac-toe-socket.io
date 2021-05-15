@@ -41,19 +41,46 @@ export const Game = () => {
 		});
 	}, [socket, gameID, historyRoute]);
 
+	// useEffect(() => {
+	// 	if (socket === null) return;
+	// 	socket.emit("send-updates", state);
+	// }, [socket, state]);
+
+	useEffect(() => {
+		if (socket === null) return;
+		const handler = (updates) => {
+			console.log(updates);
+		};
+		socket.on("receive-updates", handler);
+
+		return () => {
+			socket.off("receive-updates", handler);
+		};
+	}, [socket, state]);
+
+	useEffect(() => {
+		console.log(state);
+		if (socket === null) return;
+		socket.emit("send-updates", state);
+	}, [socket, state]);
+
 	const handleClick = (i) => {
-		const historyPoint = state.history.slice(0, state.stepNumber + 1);
-		const current = historyPoint[state.stepNumber];
-		const squares = [...current];
+		if ((amIX && xo === "X") || (!amIX && xo === "O")) {
+			const historyPoint = state.history.slice(0, state.stepNumber + 1);
+			const current = historyPoint[state.stepNumber];
+			const squares = [...current];
 
-		if (winner || squares[i]) return;
+			if (winner || squares[i]) return;
 
-		squares[i] = xo;
-		setState({
-			history: [...state.history, squares],
-			stepNumber: historyPoint.length,
-			xIsNext: !state.xIsNext,
-		});
+			squares[i] = xo;
+			setState({
+				history: [...state.history, squares],
+				stepNumber: historyPoint.length,
+				xIsNext: !state.xIsNext,
+			});
+		} else {
+			return;
+		}
 	};
 
 	return (

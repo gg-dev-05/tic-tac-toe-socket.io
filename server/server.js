@@ -15,9 +15,14 @@ io.on("connection", (socket) => {
 		if (count > 2) io.to(socket.id).emit("init", { pos: -1 });
 		// send pos = 1 for 'X' and 0 for 'O'
 		else io.to(socket.id).emit("init", { pos: count % 2 });
-	});
 
-	socket.on("disconnect", () => {
-		console.log(`Bye Bye ${socket.id}`);
+		socket.on("send-updates", (data) => {
+			console.log(data);
+			socket.broadcast.to(gameID).emit("receive-updates", data);
+		});
+
+		socket.on("disconnect", () => {
+			console.log(`Bye Bye ${socket.id}`);
+		});
 	});
 });
