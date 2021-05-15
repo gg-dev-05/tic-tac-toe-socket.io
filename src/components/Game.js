@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Board } from "./Board";
 import { calculateWinner } from "../helper";
 import { io } from "socket.io-client";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
+import { v4 as uuidV4 } from "uuid";
 
 export const Game = () => {
 	const [socket, setSocket] = useState(null);
-
+	const historyRoute = useHistory();
+	const [amIX, setAmIX] = useState(true);
 	const [state, setState] = useState({
 		history: [Array(9).fill(null)],
 		stepNumber: 0,
@@ -31,7 +33,13 @@ export const Game = () => {
 		console.log("Use Effect for get-game");
 		if (socket === null) return;
 		socket.emit("get-game", gameID);
-	}, [socket, gameID]);
+
+		socket.on("init", ({ pos }) => {
+			// redirect to new game
+			if (pos === -1) historyRoute.push(`/game/${uuidV4()}`);
+			if (pos === 0) setAmIX(false);
+		});
+	}, [socket, gameID, historyRoute]);
 
 	const handleClick = (i) => {
 		const historyPoint = state.history.slice(0, state.stepNumber + 1);
@@ -51,6 +59,7 @@ export const Game = () => {
 	return (
 		<>
 			<h1>Tic - Tac - Toe</h1>
+			<h4>{amIX ? "X" : "O"}</h4>
 			<Board
 				squares={state.history[state.stepNumber]}
 				onClick={handleClick}
