@@ -5,6 +5,9 @@ const io = require("socket.io")(process.env.PORT || 5000, {
 	},
 });
 
+let games = new Map();
+// {'uuid-uuid' : {'X': 'player ID', 'O': 'player ID', matrix: [], xIsNext: []}}
+
 io.on("connection", (socket) => {
 	socket.on("get-game", (gameID) => {
 		socket.join(gameID);
@@ -12,9 +15,19 @@ io.on("connection", (socket) => {
 		console.log(`Total player count in ${gameID}: ${count}`);
 
 		// send pos = -1 i.e room is already full
-		if (count > 2) io.to(socket.id).emit("init", { pos: -1 });
+		if (count > 2) {
+			io.to(socket.id).emit("init", { pos: -1, userID: socket.id });
+		}
 		// send pos = 1 for 'X' and 0 for 'O'
-		else io.to(socket.id).emit("init", { pos: count % 2 });
+		else {
+			io.to(socket.id).emit("init", {
+				pos: count % 2,
+				userID: socket.id,
+			});
+			if (count === 0) {
+				games.set(gameID, { X: socket.id });
+			}
+		}
 
 		socket.on("send-updates", (data) => {
 			console.log(data);
