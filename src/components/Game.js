@@ -8,89 +8,82 @@ import { v4 as uuidV4 } from "uuid";
 export const Game = () => {
 	const [socket, setSocket] = useState(null);
 	const historyRoute = useHistory();
-	const [amIX, setAmIX] = useState(true);
+	// const [amIX, setAmIX] = useState(true);
 	const [state, setState] = useState({
-		history: [Array(9).fill(null)],
-		stepNumber: 0,
+		matrix: Array(9).fill(null),
 		xIsNext: true,
 	});
-	const winner = calculateWinner(state.history[state.stepNumber]);
+	const winner = calculateWinner(state.matrix);
 	const { id: gameID } = useParams();
 
 	const xo = state.xIsNext ? "X" : "O";
 
-	useEffect(() => {
-		console.log("Use Effect without any parameters");
-		const s = io("http://localhost:5000");
-		setSocket(s);
+	// useEffect(() => {
+	// 	console.log("Use Effect without any parameters");
+	// 	const s = io("http://localhost:5000");
+	// 	setSocket(s);
 
-		return () => {
-			s.disconnect();
-		};
-	}, []);
+	// 	return () => {
+	// 		s.disconnect();
+	// 	};
+	// }, []);
 
-	useEffect(() => {
-		console.log("Use Effect for get-game");
-		if (socket === null) return;
-		socket.emit("get-game", gameID);
+	// useEffect(() => {
+	// 	console.log("Use Effect for get-game");
+	// 	if (socket === null) return;
+	// 	socket.emit("get-game", gameID);
 
-		socket.on("init", ({ pos }) => {
-			// redirect to new game
-			if (pos === -1) historyRoute.push(`/game/${uuidV4()}`);
-			if (pos === 0) setAmIX(false);
-		});
-	}, [socket, gameID, historyRoute]);
+	// 	socket.on("init", ({ pos }) => {
+	// 		// redirect to new game
+	// 		if (pos === -1) historyRoute.push(`/game/${uuidV4()}`);
+	// 		if (pos === 0) setAmIX(false);
+	// 	});
+	// }, [socket, gameID, historyRoute]);
 
 	// useEffect(() => {
 	// 	if (socket === null) return;
 	// 	socket.emit("send-updates", state);
 	// }, [socket, state]);
 
-	useEffect(() => {
-		if (socket === null) return;
-		const handler = (updates) => {
-			console.log(updates);
-		};
-		socket.on("receive-updates", handler);
+	// useEffect(() => {
+	// 	if (socket === null) return;
+	// 	const handler = (updates) => {
+	// 		console.log(updates);
+	// 	};
+	// 	socket.on("receive-updates", handler);
 
-		return () => {
-			socket.off("receive-updates", handler);
-		};
-	}, [socket, state]);
+	// 	return () => {
+	// 		socket.off("receive-updates", handler);
+	// 	};
+	// }, [socket, state]);
 
-	useEffect(() => {
-		console.log(state);
-		if (socket === null) return;
-		socket.emit("send-updates", state);
-	}, [socket, state]);
+	// useEffect(() => {
+	// 	console.log(state);
+	// 	if (socket === null) return;
+	// 	socket.emit("send-updates", state);
+	// }, [socket, state]);
 
 	const handleClick = (i) => {
-		if ((amIX && xo === "X") || (!amIX && xo === "O")) {
-			const historyPoint = state.history.slice(0, state.stepNumber + 1);
-			const current = historyPoint[state.stepNumber];
-			const squares = [...current];
+		// if ((amIX && xo === "X") || (!amIX && xo === "O")) {
+		const squares = [...state.matrix];
 
-			if (winner || squares[i]) return;
+		if (winner || squares[i]) return;
 
-			squares[i] = xo;
-			setState({
-				history: [...state.history, squares],
-				stepNumber: historyPoint.length,
-				xIsNext: !state.xIsNext,
-			});
-		} else {
-			return;
-		}
+		squares[i] = xo;
+		setState({
+			matrix: squares,
+			xIsNext: !state.xIsNext,
+		});
+		// } else {
+		// 	return;
+		// }
 	};
 
 	return (
 		<>
 			<h1>Tic - Tac - Toe</h1>
-			<h4>{amIX ? "X" : "O"}</h4>
-			<Board
-				squares={state.history[state.stepNumber]}
-				onClick={handleClick}
-			/>
+			{/* <h4>{amIX ? "X" : "O"}</h4> */}
+			<Board squares={state.matrix} onClick={handleClick} />
 			<h3>{winner ? "Winner:" + winner : "Next Player: " + xo}</h3>
 		</>
 	);
