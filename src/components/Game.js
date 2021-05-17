@@ -19,6 +19,9 @@ export const Game = () => {
 
 	const xo = state.xIsNext ? "X" : "O";
 
+	/**
+	 * This use Effect sets the socket initially
+	 */
 	useEffect(() => {
 		console.log("Use Effect without any parameters");
 		const s = io("http://localhost:5000");
@@ -29,6 +32,9 @@ export const Game = () => {
 		};
 	}, []);
 
+	/**
+	 * Set the game
+	 */
 	useEffect(() => {
 		console.log("Use Effect for get-game");
 		if (socket === null) return;
@@ -42,11 +48,13 @@ export const Game = () => {
 			if (pos === 0) {
 				setAmIX(false);
 			}
-			console.log("Setting user id");
 			setUserID(userID);
 		});
 	}, [socket, gameID, historyRoute]);
 
+	/**
+	 * use effect for receiving updates
+	 */
 	useEffect(() => {
 		if (socket === null) return;
 		const handler = (updates) => {
