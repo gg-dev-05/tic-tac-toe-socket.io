@@ -58,7 +58,7 @@ export const Game = () => {
 		return () => {
 			socket.off("receive-updates", handler);
 		};
-	}, [socket, state]);
+	}, [socket, state, userID]);
 
 	const handleClick = (i) => {
 		if ((amIX && xo === "X") || (!amIX && xo === "O")) {
