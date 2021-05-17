@@ -24,17 +24,16 @@ io.on("connection", (socket) => {
 				pos: count % 2,
 				userID: socket.id,
 			});
-			if (count === 0) {
-				games.set(gameID, { X: socket.id });
-			}
 		}
 
 		socket.on("send-updates", (data) => {
-			console.log(data);
 			socket.broadcast.to(gameID).emit("receive-updates", data);
 		});
 
 		socket.on("disconnect", () => {
+			socket.broadcast
+				.to(gameID)
+				.emit("receive-updates", { disconnect: true });
 			console.log(`Bye Bye ${socket.id}`);
 		});
 	});

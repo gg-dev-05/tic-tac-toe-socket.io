@@ -14,10 +14,14 @@ export const Game = () => {
 		matrix: Array(9).fill(null),
 		xIsNext: true,
 	});
-	const winner = calculateWinner(state.matrix);
+	const [winner, setWinner] = useState(calculateWinner(state.matrix));
 	const { id: gameID } = useParams();
 
 	const xo = state.xIsNext ? "X" : "O";
+
+	useEffect(() => {
+		setWinner(calculateWinner(state.matrix));
+	}, [state.matrix]);
 
 	/**
 	 * This use Effect sets the socket initially
@@ -58,7 +62,11 @@ export const Game = () => {
 	useEffect(() => {
 		if (socket === null) return;
 		const handler = (updates) => {
-			console.log(updates);
+			if (updates.disconnect) {
+				alert("Enemy said bye bye");
+				amIX ? setWinner("X") : setWinner("O");
+				return;
+			}
 			if (updates.userID !== userID) setState(updates.state);
 		};
 		socket.on("receive-updates", handler);
@@ -66,7 +74,7 @@ export const Game = () => {
 		return () => {
 			socket.off("receive-updates", handler);
 		};
-	}, [socket, state, userID]);
+	}, [socket, state, userID, amIX]);
 
 	const handleClick = (i) => {
 		if ((amIX && xo === "X") || (!amIX && xo === "O")) {
