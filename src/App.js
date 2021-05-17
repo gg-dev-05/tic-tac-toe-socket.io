@@ -6,12 +6,13 @@ import {
 	Route,
 } from "react-router-dom";
 import { v4 as uuidV4 } from "uuid";
+import { Home } from "./components/Home";
 function App() {
 	return (
 		<Router>
 			<Switch>
 				<Route path="/" exact>
-					<Redirect to={`/game/${uuidV4()}`} />
+					<Home />
 				</Route>
 				<Route path="/game/:id">
 					<Game />

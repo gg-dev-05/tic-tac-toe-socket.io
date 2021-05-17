@@ -5,7 +5,7 @@ const io = require("socket.io")(process.env.PORT || 5000, {
 	},
 });
 
-let games = new Map();
+// let games = new Map();
 // {'uuid-uuid' : {'X': 'player ID', 'O': 'player ID', matrix: [], xIsNext: []}}
 
 io.on("connection", (socket) => {
