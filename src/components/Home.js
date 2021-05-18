@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { v4 as uuidV4 } from "uuid";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Board } from "./Board";
+import { makeid } from "../helper";
 
 export const Home = () => {
 	const [code, setCode] = useState("");
@@ -14,10 +13,10 @@ export const Home = () => {
 	};
 
 	const joinRandom = () => {
-		historyRouter.push(`/game/${uuidV4()}`);
+		historyRouter.push(`/game/${makeid(6)}`);
 	};
 
-	const joinRandom = () => {
+	const playBot = () => {
 		historyRouter.push("/bot");
 	};
 	return (

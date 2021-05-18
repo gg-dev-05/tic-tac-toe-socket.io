@@ -23,6 +23,24 @@ export function calculateWinner(squares) {
 }
 
 export function randomSquare(squares) {
-	const newArray = squares.filter((element) => element !== null);
+	const newArray = [];
+	for (let i = 0; i < squares.length; i++) {
+		const element = squares[i];
+		if (element === null) newArray.push(i);
+	}
+	console.log(`possible choices: ${newArray}`);
 	return newArray[Math.floor(Math.random() * newArray.length)];
+}
+
+export function makeid(length) {
+	var result = [];
+	var characters =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	var charactersLength = characters.length;
+	for (var i = 0; i < length; i++) {
+		result.push(
+			characters.charAt(Math.floor(Math.random() * charactersLength))
+		);
+	}
+	return result.join("");
 }
