@@ -28,7 +28,7 @@ export const Game = () => {
 	 */
 	useEffect(() => {
 		console.log("Use Effect without any parameters");
-		const s = io("http://localhost:5000");
+		const s = io("https://backend-tickticktaetaetoetoe.herokuapp.com");
 		setSocket(s);
 
 		return () => {
