@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Board } from "./Board";
-import { calculateWinner } from "../helper";
+import { calculateWinner, makeid } from "../helper";
 import { io } from "socket.io-client";
 import { useParams, useHistory } from "react-router-dom";
-import { v4 as uuidV4 } from "uuid";
 
 export const Game = () => {
 	const [socket, setSocket] = useState(null);
@@ -14,6 +13,7 @@ export const Game = () => {
 		matrix: Array(9).fill(null),
 		xIsNext: true,
 	});
+	const [hasOpponentJoined, setHasOpponentJoined] = useState(false);
 	const [winner, setWinner] = useState(calculateWinner(state.matrix));
 	const { id: gameID } = useParams();
 
@@ -44,13 +44,18 @@ export const Game = () => {
 		if (socket === null) return;
 		socket.emit("get-game", gameID);
 
+		socket.on("opponent-joined", (data) => {
+			console.log(data);
+			setHasOpponentJoined(true);
+		});
 		socket.on("init", ({ pos, userID }) => {
 			// redirect to new game
 			if (pos === -1) {
-				historyRoute.push(`/game/${uuidV4()}`);
+				historyRoute.push(`/game/${makeid(6)}`);
 			}
-			if (pos === 0) {
+			if (pos === 1) {
 				setAmIX(false);
+				setHasOpponentJoined(true);
 			}
 			setUserID(userID);
 		});
@@ -77,6 +82,7 @@ export const Game = () => {
 	}, [socket, state, userID, amIX]);
 
 	const handleClick = (i) => {
+		if (!hasOpponentJoined) return;
 		if ((amIX && xo === "X") || (!amIX && xo === "O")) {
 			const squares = [...state.matrix];
 
@@ -104,6 +110,7 @@ export const Game = () => {
 			<h1>Tic - Tac - Toe</h1>
 			<h4>{amIX ? "X" : "O"}</h4>
 			<h4>{userID}</h4>
+			<h4>{hasOpponentJoined || "Waiting For Opponent"}</h4>
 			<Board squares={state.matrix} onClick={handleClick} />
 			<h3>{winner ? "Winner:" + winner : "Next Player: " + xo}</h3>
 		</>

@@ -1,3 +1,15 @@
+require("dotenv").config();
+const mongoose = require("mongoose");
+const Game = require("./game_model");
+
+const uri = process.env.MONGO_URI;
+mongoose.connect(uri, {
+	useNewUrlParser: true,
+	useUnifiedTopology: true,
+	useCreateIndex: true,
+	useFindAndModify: false,
+});
+
 const io = require("socket.io")(process.env.PORT || 5000, {
 	cors: {
 		origin: "http://localhost:3000",
@@ -5,27 +17,17 @@ const io = require("socket.io")(process.env.PORT || 5000, {
 	},
 });
 
-// let games = new Map();
-// {'uuid-uuid' : {'X': 'player ID', 'O': 'player ID', matrix: [], xIsNext: []}}
-
 io.on("connection", (socket) => {
-	socket.on("get-game", (gameID) => {
+	socket.on("get-game", async (gameID) => {
+		const pos = await addToRoom(socket.id, gameID);
 		socket.join(gameID);
-		const count = io.sockets.adapter.rooms.get(gameID).size;
-		console.log(`Total player count in ${gameID}: ${count}`);
+		io.to(socket.id).emit("init", {
+			pos: pos,
+			userID: socket.id,
+		});
 
-		// send pos = -1 i.e room is already full
-		if (count > 2) {
-			io.to(socket.id).emit("init", { pos: -1, userID: socket.id });
-		}
-		// send pos = 1 for 'X' and 0 for 'O'
-		else {
-			io.to(socket.id).emit("init", {
-				pos: count % 2,
-				userID: socket.id,
-			});
-		}
-
+		if (pos === 1)
+			socket.broadcast.to(gameID).emit("opponent-joined", "Joined");
 		socket.on("send-updates", (data) => {
 			socket.broadcast.to(gameID).emit("receive-updates", data);
 		});
@@ -34,7 +36,40 @@ io.on("connection", (socket) => {
 			socket.broadcast
 				.to(gameID)
 				.emit("receive-updates", { disconnect: true });
+			RemoveRoom(gameID);
+			socket.leave(gameID);
 			console.log(`Bye Bye ${socket.id}`);
 		});
 	});
 });
+
+async function RemoveRoom(room) {
+	console.log(`Remove ${room} from database`);
+	await Game.findOneAndRemove({ gameID: room });
+}
+async function addToRoom(user, room) {
+	const exists = await Game.countDocuments({ gameID: room });
+
+	// If not rooms does not exist => create room
+	if (!exists) {
+		const newGame = new Game({
+			gameID: room,
+			players: [user],
+		});
+		await newGame.save();
+		return 0;
+	} else {
+		const game = await Game.findOne({ gameID: room });
+		const total_players = game["players"].length;
+		switch (total_players) {
+			case 1:
+				await Game.findOneAndUpdate(
+					{ gameID: room },
+					{ $addToSet: { players: user } }
+				);
+				return 1;
+			default:
+				return -1;
+		}
+	}
+}
