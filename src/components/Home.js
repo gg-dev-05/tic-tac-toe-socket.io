@@ -17,6 +17,9 @@ export const Home = () => {
 		historyRouter.push(`/game/${uuidV4()}`);
 	};
 
+	const joinRandom = () => {
+		historyRouter.push("/bot");
+	};
 	return (
 		<div style={{ textAlign: "center" }}>
 			<h1>Tic - Tac - Toe</h1>
@@ -31,6 +34,8 @@ export const Home = () => {
 			</form>
 			<h2>OR</h2>
 			<button onClick={() => joinRandom()}>Join Random</button>
+			<h2>OR</h2>
+			<button onClick={() => playBot()}>Play Bot</button>
 			{/* <h4>{amIX ? "X" : "O"}</h4>
 			<h4>{userID}</h4>
 			<Board squares={state.matrix} onClick={handleClick} />

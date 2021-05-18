@@ -1,11 +1,7 @@
 import { Game } from "./components/Game";
-import {
-	BrowserRouter as Router,
-	Switch,
-	Redirect,
-	Route,
-} from "react-router-dom";
-import { v4 as uuidV4 } from "uuid";
+import { Bot } from "./components/Bot";
+
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { Home } from "./components/Home";
 function App() {
 	return (
@@ -13,6 +9,9 @@ function App() {
 			<Switch>
 				<Route path="/" exact>
 					<Home />
+				</Route>
+				<Route path="/bot" exact>
+					<Bot />
 				</Route>
 				<Route path="/game/:id">
 					<Game />

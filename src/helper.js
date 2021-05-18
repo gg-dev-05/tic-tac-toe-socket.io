@@ -1,5 +1,4 @@
 export function calculateWinner(squares) {
-	console.log(squares);
 	const lines = [
 		[0, 1, 2],
 		[3, 4, 5],
@@ -21,4 +20,9 @@ export function calculateWinner(squares) {
 		}
 	}
 	return null;
+}
+
+export function randomSquare(squares) {
+	const newArray = squares.filter((element) => element !== null);
+	return newArray[Math.floor(Math.random() * newArray.length)];
 }
